@@ -16,7 +16,7 @@ function Feed({ username }) {
     const fetchPosts = async () => {
       const res = username ?
         await Axios.get(`/api/posts/profile/` + username) : await Axios.get(`/api/posts/timeline/` + user._id);
-      setPosts(res.data.sort((p1,p2)=>{ return new Date(p2.createdAt) - new Date(p1.createdAt)}));
+      setPosts(res.data.sort((p1,p2)=>{ return new Date(p2.createdAt) - new Date(p1.createdAt)})); // 최근 작성한 글 순서로 정렬
     }
     fetchPosts()
   }, [username, user._id])
