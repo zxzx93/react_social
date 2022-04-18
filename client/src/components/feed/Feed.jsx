@@ -8,7 +8,6 @@ import { AuthContext } from "../../context/AuthContext";
 
 function Feed({ username }) {
   const [posts, setPosts] = useState([]);
-  const [text, setText] = useState("");
 
   const { user } = useContext(AuthContext);
 
@@ -28,10 +27,9 @@ function Feed({ username }) {
 
   return (
     <div className="feed">
-      {/* <input type="text" onChange={e => setText(e.target.value)} /> */}
       <div className="feedWrapper">
         {/*내 프로파일 페이지 일때만 쉐어박스 나옴 */}
-        {username === user.username && <Share />} 
+        {(!username || username === user.username) && <Share />}
         {posts.map((p) => (
           <Post post={p} key={p._id} />
         ))}

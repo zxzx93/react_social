@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./rightbar.css";
 import { Users } from "../../dummyData";
 import Online from "../online/Online";
 import Axios from "axios";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import { Add, Remove } from "@mui/icons-material";
 
 export default function Rightbar({ user }) {
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
+
+  const { user: currentUser, dispatch } = useContext(AuthContext);
   const [friends, setFriends] = useState([]);
+  const [followed, setFollowed] = useState(currentUser.followings.includes(user?.id));
 
   useEffect(() => {
     const getFriends = async () => {
@@ -20,7 +25,31 @@ export default function Rightbar({ user }) {
     };
 
     getFriends();
-  }, [user._id]);
+  }, [user]);
+
+  //currentUser : 로그인 사람, user : 친구
+  //팔로워는 나를 친구로 등록한 사람, 팔로잉은 내가 친구로 등록한 사람
+  const handleClick = async () => {
+    console.log("fasdfasd", user._id, currentUser._id);
+
+    try {
+      //팔로우 신청, 취소
+      if (followed) {
+        await Axios.put(`/api/users/${user._id}/unfollow`, {
+          userId: currentUser._id,
+        });
+        dispatch({ type: "UNFOLLOW", payload: user._id });
+      } else {
+        await Axios.put(`/api/users/${user._id}/follow`, {
+          userId: currentUser._id,
+        });
+        dispatch({ type: "FOLLOW", payload: user._id });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+    setFollowed(!followed);
+  };
 
   const HomeRightbar = () => {
     return (
@@ -45,6 +74,13 @@ export default function Rightbar({ user }) {
   const ProfileRightbar = () => {
     return (
       <>
+        {user.username !== currentUser.username && (
+          <button className="rightbarFollowButton" onClick={handleClick}>
+            {followed ? "Unfollowed" : "Follow"}
+            {followed ? <Remove /> : <Add />}
+          </button>
+        )}
+
         <h4 className="rightbarTitle">User information</h4>
         <div className="rightbarInfo">
           <div className="rightbarInfoItem">
@@ -80,7 +116,7 @@ export default function Rightbar({ user }) {
                   src={
                     friend.profilePicture
                       ? friend.profilePicture
-                      : `${PF}/person/1.jpeg`
+                      : `${PF}/person/noAvatar.png`
                   }
                   alt=""
                   className="rightbarFollowingImg"
@@ -93,6 +129,7 @@ export default function Rightbar({ user }) {
       </>
     );
   };
+
   return (
     <div className="rightbar">
       <div className="rightbarWrapper">
