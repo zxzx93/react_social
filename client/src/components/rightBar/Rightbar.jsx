@@ -12,7 +12,9 @@ export default function Rightbar({ user }) {
 
   const { user: currentUser, dispatch } = useContext(AuthContext);
   const [friends, setFriends] = useState([]);
-  const [followed, setFollowed] = useState(currentUser.followings.includes(user?.id));
+  const [followed, setFollowed] = useState(
+    currentUser.followings.includes(user?.id)
+  );
 
   useEffect(() => {
     const getFriends = async () => {
@@ -24,7 +26,7 @@ export default function Rightbar({ user }) {
       }
     };
 
-    getFriends();
+   getFriends();
   }, [user]);
 
   //currentUser : 로그인 사람, user : 친구
