@@ -11,6 +11,8 @@ const path = require("path");
 const userRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 const postsRouter = require("./routes/posts");
+const conversationRouter = require("./routes/conversation");
+const messageRouter = require("./routes/message");
 
 app.get('/', (req,res) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -56,7 +58,6 @@ const _storage = multer.diskStorage({
   //* destination: (req, file, cb) => cb(null, public/images"),
   destination: (req, file, cb) => cb(null, __dirname + "/public/images"),
   filename: (req, file, cb) => {
-    console.log("사진", req.body, file);
     cb(null, req.body.name);
   },
 });
@@ -64,16 +65,18 @@ const _storage = multer.diskStorage({
 const upload = multer({ storage: _storage });
 app.post("/api/upload", upload.single("file"), (req, res) => {
   try {
-    console.log("test", req.file);
-    console.log("test2", req.body);
     return res.status(200).json("File uploaded successfully");
   } catch (error) {
     console.log(error);
   }
 });
+
+//router
 app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/posts", postsRouter);
+app.use("/api/conversations", conversationRouter);
+app.use("/api/messages", messageRouter);
 
 app.listen(8080, () => {
   console.log("서버 실행 됨!!!!");
