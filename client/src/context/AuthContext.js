@@ -3,9 +3,9 @@ import AuthReducer from "./AuthReducer";
 
 const initialState = {
   user: {
-    _id: "618560af1ef680bf41452c17",
-    username: "test3",
-    email: "test3@test.com",
+    _id: "61854e81094fa8d3f34d7984",
+    username: "test",
+    email: "test@test.com",
     profilePicture: "person/1.jpeg",
     coverPicture: "",
     followers: [],

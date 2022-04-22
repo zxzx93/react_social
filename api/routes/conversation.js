@@ -19,6 +19,7 @@ router.post("/", async (req, res) => {
 //get con of user
 router.get("/:userId", async (req, res) => {
   try {
+    //members 객체 배열안에 userId가 있는지 찾기
     const conversation = await Conversation.find({
       members: { $in: [req.params.userId] },
     });
