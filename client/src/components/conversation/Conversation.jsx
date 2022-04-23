@@ -28,7 +28,7 @@ const Conversation = ({ currentUser, conversation }) => {
       <img
         src={
           user?.profilePicture
-            ? user.profilePicture
+            ? PF + user.profilePicture
             : `${PF}/person/noAvatar.png`
         }
         alt=""

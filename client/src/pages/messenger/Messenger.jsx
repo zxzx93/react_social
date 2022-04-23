@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import Axios from "axios";
 import "./Messenger.css";
 
@@ -15,6 +15,7 @@ const Messenger = () => {
   const [newMessage, setNewMessage] = useState("");
 
   const { user } = useContext(AuthContext);
+  const scrollRef = useRef();
 
   useEffect(() => {
     const getConversation = async () => {
@@ -58,6 +59,12 @@ const Messenger = () => {
     }
   };
 
+  useEffect(() => {
+    //새로운 메세지로 스크롤 이동시킴
+    scrollRef.current?.scrollIntoView({behavior:"smooth"});
+  }, [messages]);
+  
+
   return (
     <>
       <Topbar />
@@ -86,11 +93,13 @@ const Messenger = () => {
               <>
                 <div className="chatBoxTop">
                   {messages.map((message) => (
-                    <Message
-                      key={message._id}
-                      own={message.sender === user._id}
-                      message={message}
-                    />
+                    <div ref={scrollRef}>
+                      <Message
+                        key={message._id}
+                        own={message.sender === user._id}
+                        message={message}
+                      />
+                    </div>
                   ))}
                 </div>
 
