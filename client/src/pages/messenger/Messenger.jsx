@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState, useRef } from "react";
 import Axios from "axios";
 import "./Messenger.css";
+import { io } from "socket.io-client";
 
 import Topbar from "../../components/topbar/Topbar";
 import Conversation from "../../components/conversation/Conversation";
@@ -16,6 +17,20 @@ const Messenger = () => {
 
   const { user } = useContext(AuthContext);
   const scrollRef = useRef();
+
+  //socket
+  const socket = useRef(io("ws://localhost:8900"));
+  useEffect(() => {
+    socket.current.emit("addUser", user._id);
+    socket.current.on("getUsers", (users) => {
+      console.log("유저정보", users);
+    });
+  }, [user]);
+
+  useEffect(() => {
+    socket.current  = io("ws://localhost:8900");
+  }, [ ]);
+  
 
   useEffect(() => {
     const getConversation = async () => {
@@ -61,9 +76,8 @@ const Messenger = () => {
 
   useEffect(() => {
     //새로운 메세지로 스크롤 이동시킴
-    scrollRef.current?.scrollIntoView({behavior:"smooth"});
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  
 
   return (
     <>
@@ -93,9 +107,8 @@ const Messenger = () => {
               <>
                 <div className="chatBoxTop">
                   {messages.map((message) => (
-                    <div ref={scrollRef}>
+                    <div ref={scrollRef} key={message._id}>
                       <Message
-                        key={message._id}
                         own={message.sender === user._id}
                         message={message}
                       />
