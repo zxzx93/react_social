@@ -1,15 +1,15 @@
 import React, { useContext, useState, useEffect } from "react";
 import Axios from "axios";
+import { useSelector } from "react-redux";
 
 import "./feed.css";
 import Share from "../share/Share";
 import Post from "../post/Post";
-import { AuthContext } from "../../context/AuthContext";
 
 function Feed({ username }) {
+  const { user } = useSelector((state) => state.auth);
   const [posts, setPosts] = useState([]);
 
-  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -23,7 +23,7 @@ function Feed({ username }) {
       ); // 최근 작성한 글 순서로 정렬
     };
     fetchPosts();
-  }, [username, user._id]);
+  }, [username, user]);
 
   return (
     <div className="feed">

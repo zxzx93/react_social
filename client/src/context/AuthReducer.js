@@ -1,4 +1,5 @@
 const AuthReducer = (state, action) => {
+  console.log(action.payload, "action.payload");
   switch (action.type) {
     case "LOGIN_START":
       return {
@@ -27,7 +28,7 @@ const AuthReducer = (state, action) => {
           followings: [...state.user.followings, action.payload],
         },
       };
-    
+
     case "UNFOLLOW":
       return {
         ...state,

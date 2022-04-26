@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer, useEffect } from "react";
 import AuthReducer from "./AuthReducer";
 
 const initialState = {
@@ -20,6 +20,10 @@ export const AuthContext = createContext(initialState);
 
 export const AuthContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(AuthReducer, initialState);
+
+  useEffect(() => {
+    localStorage.setItem("user", JSON.stringify(state.user));
+  }, [state.user]);
 
   return (
     <AuthContext.Provider

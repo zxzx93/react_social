@@ -14,29 +14,43 @@ const Messenger = () => {
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [arrivalMessage, setArrivalMessage] = useState(null);
 
   const { user } = useContext(AuthContext);
   const scrollRef = useRef();
 
-  //socket
+  //!socket
   const socket = useRef(io("ws://localhost:8900"));
   useEffect(() => {
     socket.current.emit("addUser", user._id);
     socket.current.on("getUsers", (users) => {
       console.log("유저정보", users);
     });
+    socket.current.on("getMessage", (data) => {
+      setArrivalMessage({
+        sender: data.senderId,
+        text: data.text,
+        createdAt: Date.now(),
+      });
+    });
   }, [user]);
 
   useEffect(() => {
-    socket.current  = io("ws://localhost:8900");
-  }, [ ]);
+    arrivalMessage &&
+      currentChat?.members.includes(arrivalMessage.sender) &&
+      setArrivalMessage((prev) => [...prev, arrivalMessage]);
+  }, [currentChat, arrivalMessage]);
+
+  useEffect(() => {
+    socket.current = io("ws://localhost:8900");
+  }, []);
+  //!socekt end
   
 
   useEffect(() => {
     const getConversation = async () => {
       try {
         const res = await Axios.get(`/api/conversations/${user._id}`);
-        // console.log("메세지 가져오기", res);
         setConversations(res.data);
       } catch (error) {
         console.log(error);
@@ -64,6 +78,17 @@ const Messenger = () => {
       text: newMessage,
       conversationId: currentChat._id,
     };
+
+    //socket
+    const receiverId = currentChat.members.find(
+      (member) => member !== user._id
+    );
+    socket.current.emit("sendMessage", {
+      senderId: user._id,
+      receiverId,
+      text: newMessage,
+    });
+    //socket end
 
     try {
       const res = await Axios.post("/api/messages/", message);
