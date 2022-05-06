@@ -19,7 +19,7 @@ export default function Rightbar({ user }) {
 
   const [friends, setFriends] = useState([]);
   const [followed, setFollowed] = useState(
-    currentUser.followings.includes(user?.id)
+    currentUser.followings.includes(user?._id)
   );
 
   useEffect(() => {
@@ -40,23 +40,23 @@ export default function Rightbar({ user }) {
   const handleClick = async () => {
     console.log("fasdfasd", user._id, currentUser._id);
 
-    // try {
-    //   //팔로우 신청, 취소
-    //   if (followed) {
-    //     await Axios.put(`/api/users/${user._id}/unfollow`, {
-    //       userId: currentUser._id,
-    //     });
-    //     dispatch({ type: "UNFOLLOW", payload: user._id });
-    //   } else {
-    //     await Axios.put(`/api/users/${user._id}/follow`, {
-    //       userId: currentUser._id,
-    //     });
-    //     dispatch({ type: "FOLLOW", payload: user._id });
-    //   }
-    // } catch (err) {
-    //   console.log(err);
-    // }
-    // setFollowed(!followed);
+    try {
+      //팔로우 신청, 취소
+      if (followed) {
+        await Axios.put(`/api/users/${user._id}/unfollow`, {
+          userId: currentUser._id,
+        });
+        dispatch({ type: "UNFOLLOW", payload: user._id });
+      } else {
+        await Axios.put(`/api/users/${user._id}/follow`, {
+          userId: currentUser._id,
+        });
+        dispatch({ type: "FOLLOW", payload: user._id });
+      }
+    } catch (err) {
+      console.log(err);
+    }
+    setFollowed(!followed);
   };
 
   const handleLogOut = () => {

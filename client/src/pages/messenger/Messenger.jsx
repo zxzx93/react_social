@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Axios from "axios";
-import "./Messenger.css";
 import { io } from "socket.io-client";
+import { useDispatch, useSelector } from "react-redux";
 
+import "./Messenger.css";
 import Topbar from "../../components/topbar/Topbar";
 import Conversation from "../../components/conversation/Conversation";
 import Message from "../../components/message/Message";
 import ChatOnline from "../../components/chatOnline/ChatOnline";
-import { AuthContext } from "../../context/AuthContext";
 
 const Messenger = () => {
   const [conversations, setConversations] = useState([]);
@@ -15,17 +15,27 @@ const Messenger = () => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
+  const { user } = useSelector((state) => state.auth);
 
-  const { user } = useContext(AuthContext);
+  const socket = useRef();
   const scrollRef = useRef();
 
-  //!socket
-  const socket = useRef(io("ws://localhost:8900"));
   useEffect(() => {
-    socket.current.emit("addUser", user._id);
-    socket.current.on("getUsers", (users) => {
-      console.log("유저정보", users);
-    });
+    const getConversation = async () => {
+      try {
+        const res = await Axios.get(`/api/conversations/${user._id}`);
+        setConversations(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getConversation();
+  }, [user._id]);
+
+  //!socket
+  useEffect(() => {
+    socket.current = io("ws://localhost:8900");
     socket.current.on("getMessage", (data) => {
       setArrivalMessage({
         sender: data.senderId,
@@ -33,19 +43,21 @@ const Messenger = () => {
         createdAt: Date.now(),
       });
     });
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     arrivalMessage &&
       currentChat?.members.includes(arrivalMessage.sender) &&
-      setArrivalMessage((prev) => [...prev, arrivalMessage]);
+      setMessages((prev) => [...prev, arrivalMessage]);
   }, [currentChat, arrivalMessage]);
 
   useEffect(() => {
-    socket.current = io("ws://localhost:8900");
-  }, []);
+    socket.current.emit("addUser", user._id);
+    socket.current.on("getUsers", (users) => {
+      console.log("유저정보", users);
+    });
+  }, [user]);
   //!socekt end
-  
 
   useEffect(() => {
     const getConversation = async () => {
@@ -79,7 +91,7 @@ const Messenger = () => {
       conversationId: currentChat._id,
     };
 
-    //socket
+    //!socket
     const receiverId = currentChat.members.find(
       (member) => member !== user._id
     );
@@ -88,7 +100,7 @@ const Messenger = () => {
       receiverId,
       text: newMessage,
     });
-    //socket end
+    //!socket end
 
     try {
       const res = await Axios.post("/api/messages/", message);
